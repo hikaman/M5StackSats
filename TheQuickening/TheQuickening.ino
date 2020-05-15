@@ -1,14 +1,43 @@
+
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <string.h>
 #include "LNimg.h"
-#include "config.h"
+//#include "config.h"
 
 #include "PaymentInvoice.h"
 #include "PaymentServer.h"
 #include "PaymentServerLNPay.h"
 #include "PaymentServerLND.h"
+#include "PaymentServerLNBITS.h"
+
+
+
+//HARDWARE Uncomment for hardware used//
+#define M5STACK //Based on M5Stack Faces Kit
+//#define DIY //Based on ESP32/1.8TFT/Keypad Matrix
+
+//Uncomment only ONE Paymentserver
+//#define LND
+#define LNBITS
+//#define LNPAYWALL
+
+//Uncomment only ONE Paymentserver
+//String PAYMENTSERVER = "LND"; 
+//String PAYMENTSERVER = "LNBITS"; 
+//String PAYMENTSERVER = "LNPAYWALL"; 
+
+//WIFI Setup
+char wifiSSID[] = "Einet";
+char wifiPASS[] = "MrErdmann5000";
+
+//Payment Setup 
+String memoBase = "PoS "; //memo suffix, followed by a random number
+String memo="";
+String currencyBase="EUR";
+String on_currency = "BTC"+currencyBase; //currency can be changed here ie BTCUSD BTCGBP etc
+
 
 
 
@@ -59,17 +88,26 @@ void setup() {
   screen_splash();
   Serial.begin(115200);
 
-  if (PAYMENTSERVER=="LNPAY") {
+
+  #ifdef LNPAY
     Serial.println((String)"Setting LNPAY as Payment Server");
     PaymentServerLNPay * lnpay = new PaymentServerLNPay();
     paymentserver = lnpay;
-  } 
-  else {
+  #endif
+  #ifdef LNBITS
+     Serial.println((String)"Setting LNBits as Payment Server");
+    PaymentServerLNbits * lnbits = new PaymentServerLNbits();
+    lnbits->init(); 
+    paymentserver = lnbits;
+  #endif
+  #ifdef LND
     Serial.println((String)"Setting LND as Payment PaymentServer");
     PaymentServerLND * lnd = new PaymentServerLND();
     lnd->init(LNDserver, LNDport, LNDreadMacaroonHex, LNDinvoiceMacaroonHex);
     paymentserver = lnd;
-  }
+  #endif
+
+
  
   Serial.print((String)"Running as PaymentServer --> ");
   Serial.println(paymentserver->getServiceName());

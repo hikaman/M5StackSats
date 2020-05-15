@@ -17,3 +17,4 @@ PaymentInvoice PaymentServer::getInvoice(int sats, String memo) {
 }
 
 bool PaymentServer::isInvoicePaid(String id) { return true; }
+

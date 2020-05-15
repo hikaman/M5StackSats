@@ -3,3 +3,8 @@ class PaymentInvoice {
     String id;
     String paymentRequest;
 };
+class WithdrawUrl{
+  public:
+    String id;
+    String lnurl;
+};
